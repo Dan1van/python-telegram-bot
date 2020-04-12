@@ -11,16 +11,16 @@ from telegram.ext import Filters
 from telegram.ext.dispatcher import run_async
 
 from bot.config import debug_requests
-from bot.db import get_approved_list
-from bot.db import get_cardmakers_list
-from bot.db import member_chat_id
-from bot.db import set_list_to_design
-from bot.db import get_article_readiness
-from bot.db import delete_list_to_design
-from bot.db import get_newsletter_chat_ids
-from bot.db import set_weekly_useful_info
-from bot.db import set_user_info
-from bot.db import remove_user
+from db import get_approved_list
+from db import get_cardmakers_list
+from db import member_chat_id
+from db import set_list_to_design
+from db import get_article_readiness
+from db import delete_list_to_design
+from db import get_newsletter_chat_ids
+from db import set_weekly_useful_info
+from db import set_user_info
+from db import remove_user
 from bot.keyboard import COORDINATOR
 from bot.keyboard import get_article_list_inline_keyboard
 from bot.keyboard import get_cardmaker_list_inline_keyboard

@@ -1,17 +1,15 @@
 from telegram import Update
 from telegram import ParseMode
 from telegram.ext import CallbackContext
-from telegram.ext import MessageHandler
-from telegram.ext import Filters
 
 from bot.config import debug_requests
 from bot.keyboard import CARDMAKER
 from bot.keyboard import get_article_list_inline_keyboard
 from bot.keyboard import get_cardmaker_ready_article_inline_keyboard
-from bot.db import get_list_to_design
-from bot.db import get_user_info
-from bot.db import set_article_readiness
-from bot.db import get_weekly_useful_info
+from db import get_list_to_design
+from db import get_user_info
+from db import set_article_readiness
+from db import get_weekly_useful_info
 
 CHOOSE_ARTICLE_MESSAGE = 'Выберите статью из списка:'
 ARTICLE_LIST_EMPTY_MESSAGE = 'Сейчас нет статей, требующих оформления'

@@ -4,8 +4,8 @@ from telegram import InlineKeyboardButton
 from telegram import InlineKeyboardMarkup
 
 from bot.config import debug_requests
-from bot.db import get_cardmaker_article_count
-from bot.db import get_users
+from db import get_cardmaker_article_count
+from db import get_users
 
 AUTHOR = {
     'SEND_ARTICLE_BUTTON': 'Отправить материал ✉️',

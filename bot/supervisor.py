@@ -7,11 +7,10 @@ from telegram.ext import CallbackQueryHandler
 from telegram.ext import ConversationHandler
 
 from bot.config import debug_requests
-from bot.db import get_approval_list
-from bot.db import get_user_chat_id_by_role
-from bot.db import set_approved_list
-from bot.db import member_chat_id
-from bot.db import delete_approval_list
+from db import get_approval_list
+from db import get_user_chat_id_by_role
+from db import set_approved_list
+from db import delete_approval_list
 from bot.keyboard import SUPERVISOR
 from bot.keyboard import ARTICLE_APPROVING
 from bot.keyboard import get_base_reply_keyboard

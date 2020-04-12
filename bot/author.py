@@ -6,10 +6,10 @@ from telegram.ext import MessageHandler
 from telegram.ext import Filters
 
 from bot.config import debug_requests
-from bot.db import get_user_chat_id_by_role
-from bot.db import set_approval_list
-from bot.db import get_weekly_useful_info
-from bot.db import set_approval_list_by_coordinator
+from db import get_user_chat_id_by_role
+from db import set_approval_list
+from db import get_weekly_useful_info
+from db import set_approval_list_by_coordinator
 from bot.keyboard import AUTHOR
 from bot.keyboard import get_conversation_cancel_reply_keyboard
 from bot.keyboard import get_base_reply_keyboard
