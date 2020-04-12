@@ -10,9 +10,9 @@ from telegram.utils.request import Request
 
 from bot.config import load_config
 from bot.config import debug_requests
-from db import init_db
-from db import get_user_info
-from db import set_user_chat_id
+from bot.db import init_db
+from bot.db import get_user_info
+from bot.db import set_user_chat_id
 from bot.keyboard import get_base_reply_keyboard
 from bot.author import send_document_handler
 from bot.author import author_messages

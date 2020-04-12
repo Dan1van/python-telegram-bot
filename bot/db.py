@@ -3,7 +3,7 @@ import sqlite3
 
 def ensure_connection(func):
     def inner(*args, **kwargs):
-        with sqlite3.connect('bot.db') as conn:
+        with sqlite3.connect('../bot.db') as conn:
             res = func(*args, conn=conn, **kwargs)
         return res
 
@@ -281,3 +281,4 @@ if __name__ == '__main__':
     init_db(force=True)
 
     set_user_info(user_id=442046856, member_name='Иван Данюшевский', role='Coordinator')
+    set_user_info(user_id=442046856, member_name='Иван Данюшевский', role='Cardmaker')
