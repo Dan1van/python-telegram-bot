@@ -9,7 +9,7 @@ Group=root
 
 WorkingDirectory=/home/tg/python-telegram-bot/
 Environment="PYTHONPATH=/home/tg/python-telegram-bot/ TG_CONF=production"
-ExecStart=python3 /home/tg/python-telegram-bot/bot/main.py
+ExecStart=/home/tg/python-telegram-bot/.venv/bin/python /home/tg/python-telegram-bot/bot/main.py
 
 [Install]
 WantedBy=multi-user.target
