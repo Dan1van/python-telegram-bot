@@ -1,8 +1,24 @@
+import importlib
+import os
+import sys
+
 import logging.config
 from logging import getLogger
 
-TG_TOKEN = '1128654519:AAGoKI1M5bobkcKu5USZVO8HP-q4jEimtlM'
-TG_API_URL = 'http://telegg.ru/orig/bot'
+
+def load_config():
+    conf_name = os.environ.get('TG_CONF')
+    if conf_name is None:
+        conf_name = 'development'
+    try:
+        r = importlib.import_module(f'settings.{conf_name}')
+        print(f'Loaded config {conf_name} - OK')
+        return r
+    except (TypeError, ImportError, ValueError):
+        print(f'Invalid config {conf_name}')
+        sys.exit(1)
+
+
 
 LOGGING = {
     'disable_existing_loggers': True,

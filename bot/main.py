@@ -8,8 +8,8 @@ from telegram.ext import Filters
 from telegram.ext import Updater
 from telegram.utils.request import Request
 
+from bot.config import load_config
 from bot.config import debug_requests
-from bot.config import TG_TOKEN, TG_API_URL
 from bot.db import init_db
 from bot.db import get_user_info
 from bot.db import set_user_chat_id
@@ -82,13 +82,14 @@ def help_func(update: Update, context: CallbackContext):
 
 @debug_requests
 def main():
+    config = load_config()
     req = Request(
         connect_timeout=0.5,
     )
     bot = Bot(
         request=req,
-        token=TG_TOKEN,
-        base_url=TG_API_URL,
+        token=config.TG_TOKEN,
+        base_url=config.TG_API_URL,
     )
     updater = Updater(
         bot=bot,
@@ -100,7 +101,6 @@ def main():
     messages_handler = MessageHandler(Filters.all, messages)
     inline_keyboard_handler = CallbackQueryHandler(callback=inline_keyboard)
     help_handler = CommandHandler('help', help_func)
-
 
     dp = updater.dispatcher
     dp.add_handler(start_handler)
