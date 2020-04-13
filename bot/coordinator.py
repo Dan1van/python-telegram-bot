@@ -105,6 +105,8 @@ def coordinator_inline_keyboard(update: Update, context: CallbackContext):
         send_to_cardmaker(update=update, context=context)
     elif was_selected_member_to_remove(operation_type=operation_type):
         remove_member(update=update, context=context)
+    elif COORDINATOR['SHOW_ARTICLE_LIST_BUTTON']:
+        show_approved_list(update=update, context=context)
 
 
 

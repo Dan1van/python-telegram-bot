@@ -68,7 +68,6 @@ def add_new_article_to_approve(update: Update, context: CallbackContext, file_id
     if context.user_data['Role'] == 'Author':
         set_approval_list(author_name=context.user_data['Name'], file_id=file_id)
     elif context.user_data['Role'] == 'Coordinator':
-        print(context.user_data['send_by_author_name'])
         set_approval_list_by_coordinator(author_name=context.user_data['send_by_author_name'], file_id=file_id)
     update.message.reply_text(
         'Ваш материал был успешно отправлен на обработку',

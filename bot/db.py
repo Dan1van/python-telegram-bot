@@ -208,7 +208,7 @@ def set_list_to_design(conn, id: int, cardmaker: str, date: str):
 @ensure_connection
 def get_cardmaker_article_count(conn, cardmaker: str):
     c = conn.cursor()
-    c.execute('SELECT COUNT(*) FROM list_to_design WHERE cardmaker = ?', (cardmaker,))
+    c.execute('SELECT COUNT(*) FROM list_to_design WHERE cardmaker = ? AND is_ready = 0', (cardmaker,))
     (res,) = c.fetchone()
     return res
 
