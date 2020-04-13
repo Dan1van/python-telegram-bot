@@ -278,7 +278,8 @@ def get_newsletter_chat_ids(conn, newsletter_type: str):
 
 
 if __name__ == '__main__':
-    init_db()
+    init_db(force=True)
 
     set_user_info(user_id=442046856, member_name='Иван Данюшевский', role='Coordinator')
     set_user_info(user_id=442046856, member_name='Иван Данюшевский', role='Cardmaker')
+    set_user_info(user_id=718148565, member_name='Анна Баюканская', role='Supervisor')
