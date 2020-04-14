@@ -115,13 +115,15 @@ def send_notification_to_coordinator_and_author(update: Update, context: Callbac
     context.bot.send_document(
         chat_id=coordinator_chat_id,
         document=file_id,
-        caption=f'✉️ {context.user_data["Name"]} уведомляет о готовности статьи'
+        caption=f'*✉️ {context.user_data["Name"]} уведомляет о готовности статьи*',
+        parse_mode=ParseMode.MARKDOWN
     )
     author_chat_id = get_author_chat_id_from_list_to_design(article_id=context.user_data['CARDMAKER_ARTICLE_ID'])
     context.bot.send_document(
         chat_id=author_chat_id,
         document=file_id,
-        caption=f'✉️ Ваша статья готова и в ближайщее время будет опубликована на канале'
+        caption=f'*✉️ Ваша статья готова и в ближайщее время будет опубликована на канале*',
+        parse_mode=ParseMode.MARKDOWN
     )
 
 
