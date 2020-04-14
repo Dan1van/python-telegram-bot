@@ -206,6 +206,21 @@ def set_list_to_design(conn, id: int, cardmaker: str, date: str):
 
 
 @ensure_connection
+def get_file_from_list_to_design(conn, article_id: int):
+    c = conn.cursor()
+    c.execute('SELECT file_id FROM list_to_design WHERE id = ?', (article_id,))
+    (file_id,) = c.fetchone()
+    return file_id
+
+
+@ensure_connection
+def get_author_chat_id_from_list_to_design(conn, article_id: int):
+    c = conn.cursor()
+    c.execute('SELECT chat_id FROM list_to_design WHERE id = ?', (article_id,))
+    (chat_id, ) = c.fetchone()
+    return chat_id
+
+@ensure_connection
 def get_cardmaker_article_count(conn, cardmaker: str):
     c = conn.cursor()
     c.execute('SELECT COUNT(*) FROM list_to_design WHERE cardmaker = ? AND is_ready = 0', (cardmaker,))

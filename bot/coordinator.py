@@ -20,6 +20,7 @@ from bot.db import delete_list_to_design
 from bot.db import get_newsletter_chat_ids
 from bot.db import set_weekly_useful_info
 from bot.db import set_user_info
+from bot.db import get_file_from_list_to_design
 from bot.db import remove_user
 from bot.keyboard import COORDINATOR
 from bot.keyboard import get_article_list_inline_keyboard
@@ -63,9 +64,10 @@ def show_approved_list(update: Update, context: CallbackContext):
             reply_markup=get_article_list_inline_keyboard(article_list),
         )
     else:
-        update.message.reply_text(
-            '*Сейчас нет статей, требующих проверки*',
-            parse_mode=ParseMode.MARKDOWN
+        context.bot.send_message(
+            chat_id=update.effective_message.chat_id,
+            text='*Сейчас нет статей, требующих проверки*',
+            parse_mode=ParseMode.MARKDOWN,
         )
 
 
@@ -199,23 +201,26 @@ def one_hour_to_deadline_notification(update: Update, context: CallbackContext, 
                                       article_id: int):
     time.sleep(60 * 10 * days_count)
     if get_article_readiness(id=article_id) == 0:
-        context.bot.send_message(
+        file_id = get_file_from_list_to_design(article_id=article_id)
+        context.bot.send_document(
             chat_id=chat_id,
-            text='1 час до дедлайна 😱!',
+            document=file_id,
+            caption='1 час до дедлайна 😱!',
             reply_markup=get_new_to_design_article_notification_inline_keyboard()
         )
-        deadline_notification(update=update, context=context, chat_id=chat_id, article_id=article_id)
+        deadline_notification(update=update, context=context, chat_id=chat_id, article_id=article_id, file_id=file_id)
     else:
         delete_list_to_design(id=article_id)
 
 
 @run_async
-def deadline_notification(update: Update, context: CallbackContext, chat_id: int, article_id: int):
+def deadline_notification(update: Update, context: CallbackContext, chat_id: int, article_id: int, file_id: str):
     time.sleep(60)
     if get_article_readiness(id=article_id):
-        context.bot.send_message(
+        context.bot.send_document(
             chat_id=chat_id,
-            text='Вы провалили дедлайн 😢!',
+            document=file_id,
+            caption='Вы провалили дедлайн 😢!',
             reply_markup=get_new_to_design_article_notification_inline_keyboard()
         )
     else:

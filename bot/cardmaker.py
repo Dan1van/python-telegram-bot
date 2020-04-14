@@ -10,12 +10,11 @@ from bot.db import get_list_to_design
 from bot.db import get_user_info
 from bot.db import set_article_readiness
 from bot.db import get_weekly_useful_info
+from bot.db import get_file_from_list_to_design
+from bot.db import get_author_chat_id_from_list_to_design
 
 CHOOSE_ARTICLE_MESSAGE = 'Выберите статью из списка:'
 ARTICLE_LIST_EMPTY_MESSAGE = 'Сейчас нет статей, требующих оформления'
-
-CARDMAKER_MENU_MESSAGE_ID = 0
-CARDMAKER_ARTICLE_ID = 0
 
 
 @debug_requests
@@ -85,7 +84,7 @@ def cardmaker_inline_keyboard(update: Update, context: CallbackContext):
     if operation_type == 'Choosing article':
         show_to_design_article(update, context)
     elif operation_type == 'Article is ready':
-        send_notification_to_coordinator(update, context)
+        send_notification_to_coordinator_and_author(update, context)
         update_cardmaker_menu(update, context)
     elif operation_type == CARDMAKER['SHOW_ARTICLE_LIST_BUTTON']:
         show_to_design_list(update, context)
@@ -94,12 +93,11 @@ def cardmaker_inline_keyboard(update: Update, context: CallbackContext):
 @debug_requests
 def show_to_design_article(update: Update, context: CallbackContext):
     query = update.callback_query
-    global CARDMAKER_MENU_MESSAGE_ID
-    CARDMAKER_MENU_MESSAGE_ID = query.message.message_id
+
+    context.user_data['CARDMAKER_MENU_MESSAGE_ID'] = query.message.message_id
     article_list = get_list_to_design(cardmaker=context.user_data['Name'])
     article_index = int(query.data) - 1
-    global CARDMAKER_ARTICLE_ID
-    CARDMAKER_ARTICLE_ID = article_list[article_index]['id']
+    context.user_data['CARDMAKER_ARTICLE_ID'] = article_list[article_index]['id']
     context.bot.send_document(
         chat_id=update.effective_message.chat_id,
         document=article_list[article_index]['file_id'],
@@ -110,12 +108,20 @@ def show_to_design_article(update: Update, context: CallbackContext):
 
 
 @debug_requests
-def send_notification_to_coordinator(update: Update, context: CallbackContext):
+def send_notification_to_coordinator_and_author(update: Update, context: CallbackContext):
     coordinator_info = get_user_info(user_id=442046856)
     coordinator_chat_id = coordinator_info[2]
-    context.bot.send_message(
+    file_id = get_file_from_list_to_design(article_id=context.user_data['CARDMAKER_ARTICLE_ID'])
+    context.bot.send_document(
         chat_id=coordinator_chat_id,
-        text=f'✉️ {context.user_data["Name"]} уведомляет о готовности статьи'
+        document=file_id,
+        caption=f'✉️ {context.user_data["Name"]} уведомляет о готовности статьи'
+    )
+    author_chat_id = get_author_chat_id_from_list_to_design(article_id=context.user_data['CARDMAKER_ARTICLE_ID'])
+    context.bot.send_document(
+        chat_id=author_chat_id,
+        document=file_id,
+        caption=f'✉️ Ваша статья готова и в ближайщее время будет опубликована на канале'
     )
 
 
@@ -125,19 +131,19 @@ def update_cardmaker_menu(update: Update, context: CallbackContext):
         chat_id=update.effective_message.chat_id,
         message_id=update.callback_query.message.message_id
     )
-    set_article_readiness(id=CARDMAKER_ARTICLE_ID)
+    set_article_readiness(id=context.user_data['CARDMAKER_ARTICLE_ID'])
     article_list = get_list_to_design(cardmaker=context.user_data['Name'])
     if len(article_list) != 0:
         context.bot.edit_message_text(
             chat_id=update.effective_message.chat_id,
             text=CHOOSE_ARTICLE_MESSAGE,
             reply_markup=get_article_list_inline_keyboard(article_list),
-            message_id=CARDMAKER_MENU_MESSAGE_ID
+            message_id=context.user_data['CARDMAKER_MENU_MESSAGE_ID']
         )
     else:
         context.bot.edit_message_text(
             chat_id=update.effective_message.chat_id,
             text=ARTICLE_LIST_EMPTY_MESSAGE,
             parse_mode=ParseMode.MARKDOWN,
-            message_id=CARDMAKER_MENU_MESSAGE_ID
+            message_id=context.user_data['CARDMAKER_MENU_MESSAGE_ID']
         )
