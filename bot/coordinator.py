@@ -176,6 +176,7 @@ def send_to_cardmaker(update: Update, context: CallbackContext):
         text='Вам была отправлена статья на оформление',
         reply_markup=get_new_to_design_article_notification_inline_keyboard()
     )
+    print(1)
     one_hour_to_deadline_notification(update=update, context=context, chat_id=chat_id, days_count=days_count,
                                       article_id=context.user_data['Article_ID'])
 
@@ -199,7 +200,7 @@ def define_date(operation_type: str):
 @run_async
 def one_hour_to_deadline_notification(update: Update, context: CallbackContext, chat_id: int, days_count: int,
                                       article_id: int):
-    time.sleep(60 * 10 * days_count)
+    time.sleep(60*5*days_count)
     if get_article_readiness(id=article_id) == 0:
         file_id = get_file_from_list_to_design(article_id=article_id)
         context.bot.send_document(
@@ -216,7 +217,7 @@ def one_hour_to_deadline_notification(update: Update, context: CallbackContext, 
 @run_async
 def deadline_notification(update: Update, context: CallbackContext, chat_id: int, article_id: int, file_id: str):
     time.sleep(60)
-    if get_article_readiness(id=article_id):
+    if get_article_readiness(id=article_id) == 0:
         context.bot.send_document(
             chat_id=chat_id,
             document=file_id,
