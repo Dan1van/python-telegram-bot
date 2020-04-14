@@ -200,7 +200,10 @@ def define_date(operation_type: str):
 @run_async
 def one_hour_to_deadline_notification(update: Update, context: CallbackContext, chat_id: int, days_count: int,
                                       article_id: int):
-    time.sleep(60*5*days_count)
+    time_to_sleep = 60*days_count
+    print(time_to_sleep)
+    time.sleep(time_to_sleep)
+    print(1)
     if get_article_readiness(id=article_id) == 0:
         file_id = get_file_from_list_to_design(article_id=article_id)
         context.bot.send_document(
@@ -217,6 +220,7 @@ def one_hour_to_deadline_notification(update: Update, context: CallbackContext, 
 @run_async
 def deadline_notification(update: Update, context: CallbackContext, chat_id: int, article_id: int, file_id: str):
     time.sleep(60)
+    print(2)
     if get_article_readiness(id=article_id) == 0:
         context.bot.send_document(
             chat_id=chat_id,
