@@ -197,7 +197,7 @@ def define_date(operation_type: str):
 @run_async
 def one_hour_to_deadline_notification(update: Update, context: CallbackContext, chat_id: int, days_count: int,
                                       article_id: int):
-    time.sleep(60 * 60 * 11 * days_count)
+    time.sleep(60 * 10 * days_count)
     if get_article_readiness(id=article_id) == 0:
         context.bot.send_message(
             chat_id=chat_id,
@@ -211,7 +211,7 @@ def one_hour_to_deadline_notification(update: Update, context: CallbackContext, 
 
 @run_async
 def deadline_notification(update: Update, context: CallbackContext, chat_id: int, article_id: int):
-    time.sleep(60 * 60)
+    time.sleep(60)
     if get_article_readiness(id=article_id):
         context.bot.send_message(
             chat_id=chat_id,
