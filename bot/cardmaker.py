@@ -1,5 +1,6 @@
 from telegram import Update
 from telegram import ParseMode
+from telegram import InputMediaDocument
 from telegram.ext import CallbackContext
 
 from bot.config import debug_requests
@@ -15,6 +16,8 @@ from bot.db import get_author_chat_id_from_list_to_design
 
 CHOOSE_ARTICLE_MESSAGE = 'Выберите статью из списка:'
 ARTICLE_LIST_EMPTY_MESSAGE = 'Сейчас нет статей, требующих оформления'
+
+IS_CHECKING_TO_DESIGN = False
 
 
 @debug_requests
@@ -98,13 +101,27 @@ def show_to_design_article(update: Update, context: CallbackContext):
     article_list = get_list_to_design(cardmaker=context.user_data['Name'])
     article_index = int(query.data) - 1
     context.user_data['CARDMAKER_ARTICLE_ID'] = article_list[article_index]['id']
-    context.bot.send_document(
-        chat_id=update.effective_message.chat_id,
-        document=article_list[article_index]['file_id'],
-        caption=f'Автор: *{article_list[article_index]["author"]}*\n\nДедлайн: *{article_list[article_index]["deadline"]}*',
-        parse_mode=ParseMode.MARKDOWN,
-        reply_markup=get_cardmaker_ready_article_inline_keyboard(),
-    )
+    global IS_CHECKING_TO_DESIGN
+    if not IS_CHECKING_TO_DESIGN:
+        context.user_data['Checking_article_message'] = context.bot.send_document(
+            chat_id=update.effective_message.chat_id,
+            document=article_list[article_index]['file_id'],
+            caption=f'Автор: *{article_list[article_index]["author"]}*\n\nДедлайн: *{article_list[article_index]["deadline"]}*',
+            parse_mode=ParseMode.MARKDOWN,
+            reply_markup=get_cardmaker_ready_article_inline_keyboard(),
+        )
+        IS_CHECKING_TO_DESIGN = True
+    else:
+        context.bot.edit_message_media(
+            media=InputMediaDocument(
+                media=article_list[article_index]['file_id'],
+                caption=f'Автор: *{article_list[article_index]["author"]}*',
+                parse_mode=ParseMode.MARKDOWN,
+            ),
+            chat_id=update.effective_message.chat_id,
+            message_id=context.user_data['Checking_article_message'].message_id,
+            reply_markup=get_cardmaker_ready_article_inline_keyboard(),
+        )
 
 
 @debug_requests
@@ -125,6 +142,8 @@ def send_notification_to_coordinator_and_author(update: Update, context: Callbac
         caption=f'*✉️ Ваша статья готова и в ближайщее время будет опубликована на канале*',
         parse_mode=ParseMode.MARKDOWN
     )
+    global IS_CHECKING_TO_DESIGN
+    IS_CHECKING_TO_DESIGN = False
 
 
 @debug_requests

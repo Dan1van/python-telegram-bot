@@ -1,5 +1,6 @@
 from telegram import Update
 from telegram import ParseMode
+from telegram import InputMediaDocument
 from telegram.ext import CallbackContext
 from telegram.ext import MessageHandler
 from telegram.ext import Filters
@@ -22,6 +23,8 @@ from bot.keyboard import get_conversation_cancel_reply_keyboard
 MESSAGES_TO_DELETE = []
 
 SEND_COMMENT = 1
+
+IS_CHECKING_ARTICLE = False
 
 
 @debug_requests
@@ -75,14 +78,27 @@ def show_approval_article(update: Update, context: CallbackContext):
     context.user_data['Menu_ID'] = query.message.message_id
     context.user_data['Article_ID'] = article_list[article_index]['id']
     context.user_data['Article_index'] = article_index
-
-    context.bot.send_document(
-        chat_id=update.effective_message.chat_id,
-        document=article_list[article_index]['file_id'],
-        caption=f'Автор: *{article_list[article_index]["author"]}*',
-        parse_mode=ParseMode.MARKDOWN,
-        reply_markup=get_article_approve_inline_keyboard(),
-    )
+    global IS_CHECKING_ARTICLE
+    if not IS_CHECKING_ARTICLE:
+        context.user_data['Checking_article_message'] = context.bot.send_document(
+            chat_id=update.effective_message.chat_id,
+            document=article_list[article_index]['file_id'],
+            caption=f'Автор: *{article_list[article_index]["author"]}*',
+            parse_mode=ParseMode.MARKDOWN,
+            reply_markup=get_article_approve_inline_keyboard(),
+        )
+        IS_CHECKING_ARTICLE = True
+    else:
+        context.bot.edit_message_media(
+            media=InputMediaDocument(
+                media=article_list[article_index]['file_id'],
+                caption=f'Автор: *{article_list[article_index]["author"]}*',
+                parse_mode=ParseMode.MARKDOWN,
+            ),
+            chat_id=update.effective_message.chat_id,
+            message_id=context.user_data['Checking_article_message'].message_id,
+            reply_markup=get_article_approve_inline_keyboard(),
+        )
 
 
 @debug_requests
@@ -99,6 +115,8 @@ def send_approved_article(update: Update, context: CallbackContext):
         chat_id=update.effective_message.chat_id,
         message_id=query.message.message_id
     )
+    global IS_CHECKING_ARTICLE
+    IS_CHECKING_ARTICLE = False
 
 
 @debug_requests
@@ -136,6 +154,8 @@ def disapprove_conversation_start(update: Update, context: CallbackContext):
 def send_disapproved_message(update: Update, context: CallbackContext):
     text = update.effective_message.text
     MESSAGES_TO_DELETE.append(update.effective_message.message_id)
+    global IS_CHECKING_ARTICLE
+    IS_CHECKING_ARTICLE = False
     if text != 'Отменить':
         article_list = get_approval_list()
         article_index = context.user_data['Article_index']
@@ -155,6 +175,7 @@ def send_disapproved_message(update: Update, context: CallbackContext):
         delete_disapprove_messages(update=update, context=context, text=text)
         update_approval_list_menu(update=update, context=context)
         return ConversationHandler.END
+
 
 
 @debug_requests
