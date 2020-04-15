@@ -302,4 +302,4 @@ if __name__ == '__main__':
 
     set_user_info(user_id=442046856, member_name='Иван Данюшевский', role='Coordinator')
     set_user_info(user_id=442046856, member_name='Иван Данюшевский', role='Cardmaker')
-    set_user_info(user_id=1091341179, member_name='Анна Баюканская', role='Supervisor')
+    set_user_info(user_id=425364519, member_name='Михаил Вениаминович', role='Supervisor')
