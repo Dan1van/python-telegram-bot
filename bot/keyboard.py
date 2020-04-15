@@ -150,9 +150,10 @@ def get_article_list_inline_keyboard(article_list: list):
     for article in article_list:
         if 'deadline' in article:
             text = f'Статья №{i}. Дедлайн: {article["deadline"]} по МСК'
+            keyboard.append([InlineKeyboardButton(text, callback_data=f'Cardmaker {i}')])
         else:
             text = f'Статья №{i}. Автор: {article["author"]}'
-        keyboard.append([InlineKeyboardButton(text, callback_data=i)])
+            keyboard.append([InlineKeyboardButton(text, callback_data=f'Coordinator {i}')])
         i += 1
 
     return InlineKeyboardMarkup(keyboard)

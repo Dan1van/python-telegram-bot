@@ -104,7 +104,7 @@ def show_approval_article(update: Update, context: CallbackContext):
 @debug_requests
 def send_approved_article(update: Update, context: CallbackContext):
     query = update.callback_query
-    set_approved_list(id=context.user_data['Article_ID'])
+    set_approved_list(article_id=context.user_data['Article_ID'])
     coordinator_chat_id = get_user_chat_id_by_role(user_role='Coordinator')
     context.bot.send_message(
         chat_id=coordinator_chat_id,
@@ -167,7 +167,7 @@ def send_disapproved_message(update: Update, context: CallbackContext):
             caption='*Ваш материал был отклонён.*\n\n_Комментарий:_ ' + text,
             parse_mode=ParseMode.MARKDOWN
         )
-        delete_approval_list(id=context.user_data['Article_ID'])
+        delete_approval_list(article_id=context.user_data['Article_ID'])
         delete_disapprove_messages(update=update, context=context, text=text)
         update_approval_list_menu(update=update, context=context)
         return ConversationHandler.END

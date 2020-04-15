@@ -22,7 +22,7 @@ from bot.db import set_weekly_useful_info
 from bot.db import set_user_info
 from bot.db import get_file_from_list_to_design
 from bot.db import remove_user
-from bot.keyboard import COORDINATOR
+from bot.keyboard import COORDINATOR, CARDMAKER
 from bot.keyboard import get_article_list_inline_keyboard
 from bot.keyboard import get_cardmaker_list_inline_keyboard
 from bot.keyboard import get_cardmaker_deadline_inline_keyboard
@@ -33,6 +33,7 @@ from bot.keyboard import get_choose_newsletter_type
 from bot.keyboard import get_new_member_choose_role
 from bot.keyboard import get_members_to_remove_inline_keyboard
 from bot.author import author_document_handler
+from bot.cardmaker import cardmaker_inline_keyboard
 
 AUTHOR_NAME, COORDINATOR_DOCUMENT = 1, 2
 
@@ -92,14 +93,16 @@ def choose_member_to_remove(update: Update, context: CallbackContext):
 @debug_requests
 def coordinator_inline_keyboard(update: Update, context: CallbackContext):
     query = update.callback_query
+    print(query.data)
     try:
-        int(query.data) - 1
-        operation_type = 'Choosing article'
-    except ValueError:
-        data = query.data
-        operation_type = data
+        data = query.data.split()[1]
+        print(data)
+        int(data)
+        operation_type = query.data.split()[0] + ' Choosing article'
+    except (ValueError, IndexError):
+        operation_type = query.data
 
-    if operation_type == 'Choosing article':
+    if operation_type == 'Coordinator Choosing article':
         show_cardmakers_list(update=update, context=context)
     elif was_selected_cardmaker(operation_type=operation_type):
         show_date_list(update=update, context=context)
@@ -107,9 +110,10 @@ def coordinator_inline_keyboard(update: Update, context: CallbackContext):
         send_to_cardmaker(update=update, context=context)
     elif was_selected_member_to_remove(operation_type=operation_type):
         remove_member(update=update, context=context)
-    elif COORDINATOR['SHOW_ARTICLE_LIST_BUTTON']:
+    elif operation_type == COORDINATOR['SHOW_ARTICLE_LIST_BUTTON']:
         show_approved_list(update=update, context=context)
-
+    else:
+        cardmaker_inline_keyboard(update=update, context=context)
 
 
 @debug_requests
@@ -123,7 +127,8 @@ def was_selected_cardmaker(operation_type: str):
 
 @debug_requests
 def was_selected_deadline(operation_type: str):
-    return operation_type == '1_day' or operation_type == '2_days' or operation_type == '3_days' or operation_type == '4_days'
+    return operation_type == '1_day' or operation_type == '2_days' \
+           or operation_type == '3_days' or operation_type == '4_days'
 
 
 @debug_requests
@@ -136,7 +141,7 @@ def show_cardmakers_list(update: Update, context: CallbackContext):
     query = update.callback_query
     cardmaker_list = get_cardmakers_list()
     article_list = get_approved_list()
-    article_index = int(query.data) - 1
+    article_index = int(query.data.split()[1]) - 1
     context.user_data['Article_ID'] = article_list[article_index]['id']
     context.user_data['Article_index'] = article_index
 
@@ -160,7 +165,8 @@ def show_date_list(update: Update, context: CallbackContext):
 def send_to_cardmaker(update: Update, context: CallbackContext):
     chat_id = member_chat_id(member_name=context.user_data['Cardmaker_name'])
     date, days_count = define_date(operation_type=update.callback_query.data)
-    set_list_to_design(id=context.user_data['Article_ID'], cardmaker=context.user_data['Cardmaker_name'], date=date)
+    set_list_to_design(article_id=context.user_data['Article_ID'], cardmaker=context.user_data['Cardmaker_name'],
+                       date=date)
     article_list = get_approved_list()
     update.callback_query.edit_message_text(
         text='*Выберите статью из списка:*',
@@ -176,7 +182,6 @@ def send_to_cardmaker(update: Update, context: CallbackContext):
         text='Вам была отправлена статья на оформление',
         reply_markup=get_new_to_design_article_notification_inline_keyboard()
     )
-    print(1)
     one_hour_to_deadline_notification(update=update, context=context, chat_id=chat_id, days_count=days_count,
                                       article_id=context.user_data['Article_ID'])
 
@@ -200,9 +205,9 @@ def define_date(operation_type: str):
 @run_async
 def one_hour_to_deadline_notification(update: Update, context: CallbackContext, chat_id: int, days_count: int,
                                       article_id: int):
-    time_to_sleep = 60*days_count
+    time_to_sleep = 60 * 60 * 23 * days_count
     time.sleep(time_to_sleep)
-    if get_article_readiness(id=article_id) == 0:
+    if get_article_readiness(article_id=article_id) == 0:
         file_id = get_file_from_list_to_design(article_id=article_id)
         context.bot.send_document(
             chat_id=chat_id,
@@ -212,13 +217,14 @@ def one_hour_to_deadline_notification(update: Update, context: CallbackContext, 
         )
         deadline_notification(update=update, context=context, chat_id=chat_id, article_id=article_id, file_id=file_id)
     else:
-        delete_list_to_design(id=article_id)
+        delete_list_to_design(article_id=article_id)
 
 
 @run_async
 def deadline_notification(update: Update, context: CallbackContext, chat_id: int, article_id: int, file_id: str):
-    time.sleep(60)
-    if get_article_readiness(id=article_id) == 0:
+    time_to_sleep = 60 * 60
+    time.sleep(time_to_sleep)
+    if get_article_readiness(article_id=article_id) == 0:
         context.bot.send_document(
             chat_id=chat_id,
             document=file_id,
@@ -226,7 +232,7 @@ def deadline_notification(update: Update, context: CallbackContext, chat_id: int
             reply_markup=get_new_to_design_article_notification_inline_keyboard()
         )
     else:
-        delete_list_to_design(id=article_id)
+        delete_list_to_design(article_id=article_id)
 
 
 @debug_requests
@@ -237,6 +243,7 @@ def remove_member(update: Update, context: CallbackContext):
         text='Вы успешно удалили ' + user,
         reply_markup=get_members_to_remove_inline_keyboard()
     )
+
 
 @debug_requests
 def send_article_by_author_conv_start(update: Update, context: CallbackContext):

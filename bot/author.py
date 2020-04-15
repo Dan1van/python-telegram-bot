@@ -47,6 +47,7 @@ def author_document_handler(update: Update, context: CallbackContext):
         return sending_document_conversation_cancel_handler(update=update, context=context)
 
 
+@debug_requests
 def author_try_send_document(update: Update, context: CallbackContext):
     file_id = update.message.document.file_id
     file_mime_type = update.message.document.mime_type
@@ -60,10 +61,12 @@ def author_try_send_document(update: Update, context: CallbackContext):
         return author_sending_document_error(update=update, context=context)
 
 
+@debug_requests
 def is_docx(file_type: str):
     return file_type == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 
 
+@debug_requests
 def add_new_article_to_approve(update: Update, context: CallbackContext, file_id: str):
     if context.user_data['Role'] == 'Author':
         set_approval_list(author_name=context.user_data['Name'], file_id=file_id)
@@ -131,9 +134,15 @@ def send_author_useful_info(update: Update, context: CallbackContext):
 @debug_requests
 def send_teaching_material(update: Update, context: CallbackContext):
     update.message.reply_text(
-        '<b>Методический материал для авторов:</b>\n\n<a '
-        'href="https://drive.google.com/file/d/1LqcPFLVYFiPzbsiivBSsqq0TQtku1RAa/view?usp=sharing">Ссылка на '
-        'документ</a>\n',
+        '''
+        <b>Методический материал для авторов:</b>
+        
+        
+        <b><a'href="https://drive.google.com/file/d/1LqcPFLVYFiPzbsiivBSsqq0TQtku1RAa/view?usp=sharing">
+        Ссылка на документ
+        </a></b>
+        
+        ''',
         parse_mode=ParseMode.HTML
     )
 

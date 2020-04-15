@@ -8,11 +8,11 @@ from bot.keyboard import CARDMAKER
 from bot.keyboard import get_article_list_inline_keyboard
 from bot.keyboard import get_cardmaker_ready_article_inline_keyboard
 from bot.db import get_list_to_design
-from bot.db import get_user_info
 from bot.db import set_article_readiness
 from bot.db import get_weekly_useful_info
 from bot.db import get_file_from_list_to_design
 from bot.db import get_author_chat_id_from_list_to_design
+from bot.db import get_user_chat_id_by_role
 
 CHOOSE_ARTICLE_MESSAGE = 'Выберите статью из списка:'
 ARTICLE_LIST_EMPTY_MESSAGE = 'Сейчас нет статей, требующих оформления'
@@ -32,21 +32,20 @@ def cardmaker_messages(update: Update, context: CallbackContext):
 
 @debug_requests
 def show_to_design_list(update: Update, context: CallbackContext):
-    if context.user_data['Role'] == 'Cardmaker':
-        article_list = get_list_to_design(cardmaker=context.user_data['Name'])
-        if len(article_list) != 0:
-            context.bot.send_message(
-                chat_id=update.effective_message.chat_id,
-                text=CHOOSE_ARTICLE_MESSAGE,
-                reply_markup=get_article_list_inline_keyboard(article_list),
-                parse_mode=ParseMode.MARKDOWN,
+    article_list = get_list_to_design(cardmaker=context.user_data['Name'])
+    if len(article_list) != 0:
+        context.bot.send_message(
+            chat_id=update.effective_message.chat_id,
+            text=CHOOSE_ARTICLE_MESSAGE,
+            reply_markup=get_article_list_inline_keyboard(article_list),
+            parse_mode=ParseMode.MARKDOWN,
 
-            )
-        else:
-            update.message.reply_text(
-                ARTICLE_LIST_EMPTY_MESSAGE,
-                parse_mode=ParseMode.MARKDOWN
-            )
+        )
+    else:
+        update.message.reply_text(
+            ARTICLE_LIST_EMPTY_MESSAGE,
+            parse_mode=ParseMode.MARKDOWN
+        )
 
 
 @debug_requests
@@ -58,7 +57,15 @@ def send_cardmaker_useful_info(update: Update, context: CallbackContext):
 @debug_requests
 def send_teaching_material(update: Update, context: CallbackContext):
     update.message.reply_text(
-        '<b>Методический материал для картмейкеров:</b>\n\n<a href="https://drive.google.com/file/d/1Ezg0ts9GGYMBUf6QSWqsnDNnZBrdD3bK/view?usp=sharing">Ссылка на документ</a>\n',
+        '''
+        <b>Методический материал для картмейкеров:</b>
+        
+        
+        <b><a href="https://drive.google.com/file/d/1Ezg0ts9GGYMBUf6QSWqsnDNnZBrdD3bK/view?usp=sharing">
+        Ссылка на документ
+        </a></b>
+        
+        ''',
         parse_mode=ParseMode.HTML
     )
 
@@ -78,7 +85,7 @@ def cardmaker_inline_keyboard(update: Update, context: CallbackContext):
     query = update.callback_query
 
     try:
-        int(query.data) - 1
+        int(query.data.split()[1])
         operation_type = 'Choosing article'
     except ValueError:
         data = query.data
@@ -99,7 +106,7 @@ def show_to_design_article(update: Update, context: CallbackContext):
 
     context.user_data['CARDMAKER_MENU_MESSAGE_ID'] = query.message.message_id
     article_list = get_list_to_design(cardmaker=context.user_data['Name'])
-    article_index = int(query.data) - 1
+    article_index = int(query.data.split()[1]) - 1
     context.user_data['CARDMAKER_ARTICLE_ID'] = article_list[article_index]['id']
     global IS_CHECKING_TO_DESIGN
     if not IS_CHECKING_TO_DESIGN:
@@ -126,8 +133,7 @@ def show_to_design_article(update: Update, context: CallbackContext):
 
 @debug_requests
 def send_notification_to_coordinator_and_author(update: Update, context: CallbackContext):
-    coordinator_info = get_user_info(user_id=442046856)
-    coordinator_chat_id = coordinator_info[2]
+    coordinator_chat_id = get_user_chat_id_by_role(user_role='Coordinator')
     file_id = get_file_from_list_to_design(article_id=context.user_data['CARDMAKER_ARTICLE_ID'])
     context.bot.send_document(
         chat_id=coordinator_chat_id,
@@ -152,7 +158,7 @@ def update_cardmaker_menu(update: Update, context: CallbackContext):
         chat_id=update.effective_message.chat_id,
         message_id=update.callback_query.message.message_id
     )
-    set_article_readiness(id=context.user_data['CARDMAKER_ARTICLE_ID'])
+    set_article_readiness(article_id=context.user_data['CARDMAKER_ARTICLE_ID'])
     article_list = get_list_to_design(cardmaker=context.user_data['Name'])
     if len(article_list) != 0:
         context.bot.edit_message_text(

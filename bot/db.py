@@ -137,6 +137,7 @@ def remove_user(conn, member_name: str):
     c.execute('DELETE FROM user_info WHERE member_name = ?', (member_name,))
     conn.commit()
 
+
 @ensure_connection
 def get_approval_list(conn):
     c = conn.cursor()
@@ -148,20 +149,20 @@ def get_approval_list(conn):
 
 
 @ensure_connection
-def delete_approval_list(conn, id: int):
+def delete_approval_list(conn, article_id: int):
     c = conn.cursor()
-    c.execute('DELETE FROM approval_list WHERE id = ?', (id,))
+    c.execute('DELETE FROM approval_list WHERE id = ?', (article_id,))
     conn.commit()
 
 
 @ensure_connection
-def set_approved_list(conn, id: int):
+def set_approved_list(conn, article_id: int):
     c = conn.cursor()
-    c.execute('SELECT author_name, chat_id, file_id FROM approval_list WHERE id = ?', (id,))
+    c.execute('SELECT author_name, chat_id, file_id FROM approval_list WHERE id = ?', (article_id,))
     (author_name, chat_id, file_id) = c.fetchone()
     c.execute('INSERT INTO approved_list (author_name, chat_id, file_id) VALUES (?, ?, ?)',
               (author_name, chat_id, file_id))
-    c.execute('DELETE FROM approval_list WHERE id = ?', (id,))
+    c.execute('DELETE FROM approval_list WHERE id = ?', (article_id,))
     conn.commit()
 
 
@@ -194,14 +195,17 @@ def get_cardmakers_list(conn):
 
 
 @ensure_connection
-def set_list_to_design(conn, id: int, cardmaker: str, date: str):
+def set_list_to_design(conn, article_id: int, cardmaker: str, date: str):
     c = conn.cursor()
-    c.execute('SELECT author_name, chat_id, file_id FROM approved_list WHERE id = ?', (id,))
+    c.execute('SELECT author_name, chat_id, file_id FROM approved_list WHERE id = ?', (article_id,))
     (author_name, chat_id, file_id) = c.fetchone()
     c.execute(
-        'INSERT INTO list_to_design (cardmaker, author_name, chat_id, file_id, deadline, is_ready) VALUES (?, ?, ?, ?, ?, 0)',
+        '''
+        INSERT INTO list_to_design (cardmaker, author_name, chat_id, file_id, deadline, is_ready) 
+        VALUES (?, ?, ?, ?, ?, 0)
+        ''',
         (cardmaker, author_name, chat_id, file_id, date))
-    c.execute('DELETE FROM approved_list WHERE id = ?', (id,))
+    c.execute('DELETE FROM approved_list WHERE id = ?', (article_id,))
     conn.commit()
 
 
@@ -217,8 +221,9 @@ def get_file_from_list_to_design(conn, article_id: int):
 def get_author_chat_id_from_list_to_design(conn, article_id: int):
     c = conn.cursor()
     c.execute('SELECT chat_id FROM list_to_design WHERE id = ?', (article_id,))
-    (chat_id, ) = c.fetchone()
+    (chat_id,) = c.fetchone()
     return chat_id
+
 
 @ensure_connection
 def get_cardmaker_article_count(conn, cardmaker: str):
@@ -241,23 +246,23 @@ def get_list_to_design(conn, cardmaker: str):
 
 
 @ensure_connection
-def delete_list_to_design(conn, id: int):
+def delete_list_to_design(conn, article_id: int):
     c = conn.cursor()
-    c.execute('DELETE FROM list_to_design WHERE id = ?', (id,))
+    c.execute('DELETE FROM list_to_design WHERE id = ?', (article_id,))
     conn.commit()
 
 
 @ensure_connection
-def set_article_readiness(conn, id: int):
+def set_article_readiness(conn, article_id: int):
     c = conn.cursor()
-    c.execute('UPDATE list_to_design SET is_ready = 1 WHERE id = ?', (id,))
+    c.execute('UPDATE list_to_design SET is_ready = 1 WHERE id = ?', (article_id,))
     conn.commit()
 
 
 @ensure_connection
-def get_article_readiness(conn, id: int):
+def get_article_readiness(conn, article_id: int):
     c = conn.cursor()
-    c.execute('SELECT is_ready FROM list_to_design WHERE id = ?', (id,))
+    c.execute('SELECT is_ready FROM list_to_design WHERE id = ?', (article_id,))
     (is_ready,) = c.fetchone()
     return is_ready
 
