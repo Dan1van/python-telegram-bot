@@ -138,7 +138,7 @@ def send_teaching_material(update: Update, context: CallbackContext):
         <b>Методический материал для авторов:</b>
         
         
-        <b><a'href="https://drive.google.com/file/d/1LqcPFLVYFiPzbsiivBSsqq0TQtku1RAa/view?usp=sharing">
+        <b><a href="https://drive.google.com/file/d/1LqcPFLVYFiPzbsiivBSsqq0TQtku1RAa/view?usp=sharing">
         Ссылка на документ
         </a></b>
         
