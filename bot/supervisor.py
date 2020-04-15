@@ -55,9 +55,9 @@ def show_approval_article_list_menu(update: Update, context: CallbackContext):
 def supervisor_inline_keyboard(update: Update, context: CallbackContext):
     query = update.callback_query
     try:
-        int(query.data)
+        int(query.data.split()[1])
         operation_type = 'Choosing article'
-    except ValueError:
+    except (ValueError, IndexError):
         data = query.data
         operation_type = data
 
@@ -74,7 +74,7 @@ def supervisor_inline_keyboard(update: Update, context: CallbackContext):
 def show_approval_article(update: Update, context: CallbackContext):
     query = update.callback_query
     article_list = get_approval_list()
-    article_index = int(query.data) - 1
+    article_index = int(query.data.split()[1]) - 1
     context.user_data['Menu_ID'] = query.message.message_id
     context.user_data['Article_ID'] = article_list[article_index]['id']
     context.user_data['Article_index'] = article_index

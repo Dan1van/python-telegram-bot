@@ -87,7 +87,7 @@ def cardmaker_inline_keyboard(update: Update, context: CallbackContext):
     try:
         int(query.data.split()[1])
         operation_type = 'Choosing article'
-    except ValueError:
+    except (ValueError, IndexError):
         data = query.data
         operation_type = data
 
