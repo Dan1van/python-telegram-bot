@@ -297,13 +297,6 @@ def get_newsletter_chat_ids(conn, newsletter_type: str):
     return chat_id_list
 
 
-@ensure_connection
-def get_user_role(conn, user_id: int):
-    c = conn.cursor()
-    c.execute('SELECT role FROM user_info WHERE user_id = ?', (user_id,))
-    (role, ) = c.fetchone()
-    return role
-
 if __name__ == '__main__':
     init_db(force=True)
 

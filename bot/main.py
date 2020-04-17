@@ -13,7 +13,6 @@ from bot.config import debug_requests
 from bot.db import init_db
 from bot.db import get_user_info
 from bot.db import set_user_chat_id
-from bot.db import get_user_role
 from bot.keyboard import get_base_reply_keyboard
 from bot.author import send_document_handler
 from bot.author import author_messages
@@ -51,7 +50,8 @@ def authorize_user_in_system(update: Update, context: CallbackContext):
 
 @debug_requests
 def messages(update: Update, context: CallbackContext):
-    context.user_data['Role'] = get_user_role(user_id=update.effective_user.id)
+    context.user_data['Name'], context.user_data['Role'], context.user_data['Chat_ID'] = get_user_info(
+        user_id=update.effective_user.id)
     if context.user_data['Role'] == 'Supervisor':
         supervisor_messages(update=update, context=context)
     elif context.user_data['Role'] == 'Coordinator':
@@ -64,7 +64,8 @@ def messages(update: Update, context: CallbackContext):
 
 @debug_requests
 def inline_keyboard(update: Update, context: CallbackContext):
-    context.user_data['Role'] = get_user_role(user_id=update.effective_user.id)
+    context.user_data['Name'], context.user_data['Role'], context.user_data['Chat_ID'] = get_user_info(
+        user_id=update.effective_user.id)
     if context.user_data['Role'] == 'Supervisor':
         supervisor_inline_keyboard(update=update, context=context)
     elif context.user_data['Role'] == 'Coordinator':

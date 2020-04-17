@@ -140,6 +140,8 @@ def update_approval_list_menu(update: Update, context: CallbackContext):
 
 @debug_requests
 def disapprove_conversation_start(update: Update, context: CallbackContext):
+    context.user_data['Name'], context.user_data['Role'], context.user_data['Chat_ID'] = get_user_info(
+        user_id=update.effective_user.id)
     message = context.bot.send_message(
         chat_id=update.effective_message.chat_id,
         text='Напишите комментарий автору и укажите причину отказа:',

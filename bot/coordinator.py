@@ -9,7 +9,7 @@ from telegram.ext import MessageHandler
 from telegram.ext import ConversationHandler
 from telegram.ext import Filters
 from telegram.ext.dispatcher import run_async
-
+from bot.db import get_user_info
 from bot.config import debug_requests
 from bot.db import get_approved_list
 from bot.db import get_cardmakers_list
@@ -245,6 +245,8 @@ def remove_member(update: Update, context: CallbackContext):
 
 @debug_requests
 def send_article_by_author_conv_start(update: Update, context: CallbackContext):
+    context.user_data['Name'], context.user_data['Role'], context.user_data['Chat_ID'] = get_user_info(
+        user_id=update.effective_user.id)
     update.message.reply_text(
         'Введите имя автора:',
         reply_markup=get_conversation_cancel_reply_keyboard(),
@@ -286,6 +288,8 @@ send_article_by_author_handler = ConversationHandler(
 
 @debug_requests
 def send_newsletter_start(update: Update, context: CallbackContext):
+    context.user_data['Name'], context.user_data['Role'], context.user_data['Chat_ID'] = get_user_info(
+        user_id=update.effective_user.id)
     context.bot.send_message(
         chat_id=update.effective_message.chat_id,
         text='Введите текст рассылки:',
@@ -343,6 +347,8 @@ send_newsletter_handler = ConversationHandler(
 
 @debug_requests
 def setup_new_member_start(update: Update, context: CallbackContext):
+    context.user_data['Name'], context.user_data['Role'], context.user_data['Chat_ID'] = get_user_info(
+        user_id=update.effective_user.id)
     context.bot.send_message(
         chat_id=update.effective_message.chat_id,
         text='Введите имя участника:',
