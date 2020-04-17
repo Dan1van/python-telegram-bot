@@ -203,7 +203,7 @@ def define_date(operation_type: str):
 @run_async
 def one_hour_to_deadline_notification(update: Update, context: CallbackContext, chat_id: int, days_count: int,
                                       article_id: int):
-    time_to_sleep = 60 * days_count
+    time_to_sleep = 60 * 60 * 23 * days_count
     time.sleep(time_to_sleep)
     if get_article_readiness(article_id=article_id) == 0:
         file_id = get_file_from_list_to_design(article_id=article_id)

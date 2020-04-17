@@ -10,6 +10,7 @@ from bot.db import get_user_chat_id_by_role
 from bot.db import set_approval_list
 from bot.db import get_weekly_useful_info
 from bot.db import set_approval_list_by_coordinator
+from bot.db import get_user_role
 from bot.keyboard import AUTHOR
 from bot.keyboard import get_conversation_cancel_reply_keyboard
 from bot.keyboard import get_base_reply_keyboard
@@ -20,6 +21,7 @@ AUTHOR_DOCUMENT = 2
 
 @debug_requests
 def author_send_document_start(update: Update, context: CallbackContext):
+    context.user_data['Role'] = get_user_role(user_id=update.effective_user.id)
     if context.user_data['Role'] == 'Author':
         update.message.reply_text(
             'Отправьте материал в формате *.docx*',
@@ -68,6 +70,7 @@ def is_docx(file_type: str):
 
 @debug_requests
 def add_new_article_to_approve(update: Update, context: CallbackContext, file_id: str):
+    context.user_data['Role'] = get_user_role(user_id=update.effective_user.id)
     if context.user_data['Role'] == 'Author':
         set_approval_list(author_name=context.user_data['Name'], file_id=file_id)
     elif context.user_data['Role'] == 'Coordinator':
