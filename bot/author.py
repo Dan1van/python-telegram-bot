@@ -11,6 +11,7 @@ from bot.db import set_approval_list
 from bot.db import get_weekly_useful_info
 from bot.db import set_approval_list_by_coordinator
 from bot.db import get_user_info
+
 from bot.keyboard import AUTHOR
 from bot.keyboard import get_conversation_cancel_reply_keyboard
 from bot.keyboard import get_base_reply_keyboard
@@ -71,7 +72,8 @@ def is_docx(file_type: str):
 
 @debug_requests
 def add_new_article_to_approve(update: Update, context: CallbackContext, file_id: str):
-    context.user_data['Role'] = get_user_role(user_id=update.effective_user.id)
+    context.user_data['Name'], context.user_data['Role'], context.user_data['Chat_ID'] = get_user_info(
+        user_id=update.effective_user.id)
     if context.user_data['Role'] == 'Author':
         set_approval_list(author_name=context.user_data['Name'], file_id=file_id)
     elif context.user_data['Role'] == 'Coordinator':
