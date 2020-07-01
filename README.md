@@ -8,7 +8,7 @@ settings/production.py
 Требуется ввести токен своего телеграм-бота.
 
 Затем запустить bot/main.py.
-
+____
 # English
 Telegram-bot developed for Haknem company (http://haknem.com/). This bot was designed to automate the process of sending articles, their verification and publication. 
 ## Install
